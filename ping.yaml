@@ -1,0 +1,27 @@
+- name: This is a hello-world example
+  hosts: siebel
+
+  tasks:
+
+    - name: Show inventory name, host name and FQDN
+      debug:
+        msg:
+          - "Name:      {{ inventory_hostname }}"
+          - "Host name: {{ ansible_host }}"
+          - "Host FQDN: {{ ansible_fqdn }}"
+      delegate_to: localhost
+
+    - name: Check for SSH connection using host name
+      wait_for:
+        host: "{{ hostvars[item].ansible_host }}"
+        port: 22
+        timeout: 1
+      loop: "{{ groups['siebel'] }}"
+      when: item != inventory_hostname
+
+    - name: Check for SSH connection using host FQDN
+      wait_for:
+        host: "{{ hostvars[item].ansible_fqdn }}"
+        timeout: 1
+      loop: "{{ groups['siebel'] }}"
+      when: item != inventory_hostname
